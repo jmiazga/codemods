@@ -1,21 +1,17 @@
 import { Transform } from "jscodeshift";
+import { findJSXElementsByNamedImport } from "./custom-methods";
 
 const transformer: Transform = (file, api) => {
   const j = api.jscodeshift;
   const root = j(file.source);
 
+  j.registerMethods({ findJSXElementsByNamedImport });
+
   root
-    .findJSXElements("Button")
-    .find(j.JSXAttribute, {
-      name: {
-        type: "JSXIdentifier",
-        name: "variantColor",
-      },
-      value: {
-        type: "Literal",
-      },
+    .findJSXElementsByNamedImport(j, "@chakra-ui/core", "Button")
+    .find(j.JSXIdentifier, {
+      name: "variantColor",
     })
-    .find(j.JSXIdentifier)
     .replaceWith((nodePath) => {
       const { node } = nodePath;
 
